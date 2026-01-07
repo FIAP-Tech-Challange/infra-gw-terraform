@@ -31,7 +31,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: 🆔 Calculate Bucket Name
         id: calc
@@ -50,7 +50,7 @@ jobs:
         shell: bash
         env:
           BUCKET_NAME: ${{ env.TF_STATE_BUCKET_NAME }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
         run: |
           if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
             echo "✅ Bucket '$BUCKET_NAME' already exists."
@@ -96,7 +96,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -131,7 +131,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -158,3 +158,5 @@ jobs:
           echo "| **Load Balancer** | $ALB_DNS |" >> $GITHUB_STEP_SUMMARY
           
           echo "::notice title=✅ Success::Manager: $MANAGER_URL"
+          echo "::notice title=🌐 API Proxy::$PROXY_URL"
+          echo "::notice title=⚖️ Load Balancer::$ALB_DNS"
