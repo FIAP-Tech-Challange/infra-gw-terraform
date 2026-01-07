@@ -19,7 +19,7 @@ variable "project_name" {
 variable "kong_image" {
   description = "Imagem Docker do Kong"
   type        = string
-  default     = "kong:3.10.0.4" # Kong Gateway 3.10.0.4 com Manager OSS bundled
+  default     = "kong:3.8"
 }
 
 variable "kong_cpu" {
