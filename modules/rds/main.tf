@@ -34,10 +34,10 @@ resource "aws_security_group" "rds" {
 
 # Random password para o banco (excluindo caracteres problemáticos do RDS)
 resource "random_password" "db_password" {
-  length  = 16
-  special = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"  # Exclui / @ " espaço
-  
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?" # Exclui / @ " espaço
+
   # Evita regenerar senha se já existe
   lifecycle {
     ignore_changes = [
@@ -55,41 +55,41 @@ resource "aws_db_instance" "kong" {
   engine         = "postgres"
   engine_version = "15"
   instance_class = var.db_instance_class
-  
+
   # Database configuration
   db_name  = "kong"
   username = "kong"
   password = random_password.db_password.result
-  
+
   # Storage
   allocated_storage     = var.db_allocated_storage
   max_allocated_storage = var.db_max_allocated_storage
   storage_type          = "gp3"
   storage_encrypted     = true
-  
+
   # Network & Security
   db_subnet_group_name   = aws_db_subnet_group.kong.name
   vpc_security_group_ids = [aws_security_group.rds.id]
   publicly_accessible    = false
-  
+
   # Backup & Maintenance
   backup_retention_period = var.db_backup_retention_days
-  backup_window          = "03:00-04:00"
-  maintenance_window     = "sun:04:00-sun:05:00"
-  
+  backup_window           = "03:00-04:00"
+  maintenance_window      = "sun:04:00-sun:05:00"
+
   # Monitoring (desabilitado para AWS Academy - sem Enhanced Monitoring)
   monitoring_interval = 0
-  
+
   # Performance Insights (básico, sem role IAM)
   performance_insights_enabled = false
-  
+
   # Deletion protection (desabilitado para Academy)
   deletion_protection = false
   skip_final_snapshot = true
-  
+
   # Auto minor version updates
   auto_minor_version_upgrade = true
-  
+
   tags = {
     Name        = "${var.project_name}-postgres"
     Environment = var.environment
@@ -100,8 +100,8 @@ resource "aws_db_instance" "kong" {
 resource "aws_secretsmanager_secret" "db_credentials" {
   name                    = "${var.project_name}-db-credentials"
   description             = "Credenciais do banco PostgreSQL para Kong"
-  recovery_window_in_days = 0  # Permite delete imediato no Academy
-  
+  recovery_window_in_days = 0 # Permite delete imediato no Academy
+
   tags = {
     Name        = "${var.project_name}-db-credentials"
     Environment = var.environment

@@ -4,7 +4,7 @@ resource "aws_lb" "kong" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.alb_security_group_id]
-  subnets           = var.subnet_ids
+  subnets            = var.subnet_ids
 
   enable_deletion_protection = false
 
@@ -24,9 +24,9 @@ resource "aws_lb_target_group" "kong_proxy" {
 
   health_check {
     enabled             = true
-    healthy_threshold   = 2          
-    interval            = 120        
-    matcher             = "200,404"  
+    healthy_threshold   = 2
+    interval            = 120
+    matcher             = "200,404"
     path                = "/"
     port                = "traffic-port"
     protocol            = "HTTP"
@@ -50,14 +50,14 @@ resource "aws_lb_target_group" "kong_admin" {
 
   health_check {
     enabled             = true
-    healthy_threshold   = 2          
-    interval            = 120        
+    healthy_threshold   = 2
+    interval            = 120
     matcher             = "200"
     path                = "/status"
     port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = 30
-    unhealthy_threshold = 10         
+    unhealthy_threshold = 10
   }
 
   tags = {
@@ -78,7 +78,7 @@ resource "aws_lb_target_group" "kong_manager" {
     enabled             = true
     healthy_threshold   = 2
     interval            = 120
-    matcher             = "200,404"  
+    matcher             = "200,404"
     path                = "/"
     port                = "traffic-port"
     protocol            = "HTTP"
