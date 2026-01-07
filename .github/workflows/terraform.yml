@@ -115,7 +115,7 @@ jobs:
     needs: 
       - terraform-plan
       - terraform-validate
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     environment:
       name: production
     env:
