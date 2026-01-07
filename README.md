@@ -38,23 +38,6 @@ infra-gw-terraform/
 ├── outputs.tf                 # 📤 Outputs do projeto
 ├── terraform.tfvars.example   # 📋 Exemplo de configuração
 └── README.md
-
-infra-gw-terraform/
-│   │   └── outputs.tf
-│   ├── alb/                   # ⚖️ Application Load Balancer
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   └── iam/                   # 🔐 IAM Roles e Políticas
-│       ├── main.tf
-│       ├── variables.tf
-│       └── outputs.tf
-├── main.tf                    # 🎯 Configuração principal usando módulos
-├── variables.tf               # 📥 Variáveis de entrada
-├── outputs.tf                 # 📤 Outputs do projeto
-├── providers.tf               # ⚙️ Configuração dos providers
-├── terraform.tfvars           # 🔧 Valores das variáveis
-└── terraform.tfvars.example   # 📋 Exemplo de configuração
 ```
 
 ## 🧩 Módulos
