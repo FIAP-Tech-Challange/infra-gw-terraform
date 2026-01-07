@@ -12,6 +12,7 @@ on:
 
 env:
   TF_VERSION: '1.9.0'
+  TF_STATE_BUCKET_NAME: "terraform-state-fiap-kong-gw"
 
 jobs:
   terraform-validate:
@@ -30,6 +31,31 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: 🪣 Bootstrap S3 Backend
+        id: bootstrap
+        shell: bash
+        env:
+          BUCKET_NAME: ${{ env.TF_STATE_BUCKET_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          echo "🔍 Checking if bucket exists: $BUCKET_NAME..."
+
+          if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+            echo "✅ Bucket '$BUCKET_NAME' already exists."
+          else
+            echo "⚠️ Bucket '$BUCKET_NAME' not found. Creating..."
+            
+            if [ "$AWS_REGION" == "us-east-1" ]; then
+              aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION"
+            else
+              aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" --create-bucket-configuration LocationConstraint="$AWS_REGION"
+            fi
+            
+            echo "✅ Bucket created."
+            
+            echo "🛡️ Enabling versioning on Bucket..."
+            aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --versioning-configuration Status=Enabled
+          fi
       - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -41,7 +67,7 @@ jobs:
 
       - name: 📦 Terraform Init
         id: init
-        run: terraform init
+        run: terraform init -backend-config="bucket=${{ env.TF_STATE_BUCKET_NAME }}"
 
       - name: 🧪 Terraform Validate
         id: validate
