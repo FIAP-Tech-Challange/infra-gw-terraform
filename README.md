@@ -38,6 +38,7 @@ infra-gw-terraform/
 ├── outputs.tf                 # 📤 Outputs do projeto
 ├── terraform.tfvars.example   # 📋 Exemplo de configuração
 └── README.md
+
 ```
 │   │   └── outputs.tf
 │   ├── alb/                   # ⚖️ Application Load Balancer
@@ -99,8 +100,7 @@ infra-gw-terraform/
 
 ### Opção 1: Deploy via CI/CD (Recomendado)
 
-Este projeto está configurado com GitHub Actions para automação completa. Veja `.github/workflows/README.md` para instruções detalhadas.
-
+Este projeto está configurado com GitHub Actions para automação completa.
 **Fluxo básico:**
 1. Configure os secrets no GitHub (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN, AWS_REGION)
 2. Crie uma branch e faça suas alterações
