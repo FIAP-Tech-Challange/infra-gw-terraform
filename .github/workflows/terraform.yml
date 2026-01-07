@@ -136,30 +136,3 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         run: terraform output -json
-
-      - name: Create Deployment Summary
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        run: |
-          echo "## 🚀 Terraform Deployment Successful!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔗 Kong Gateway URLs" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          ALB_DNS=$(terraform output -raw load_balancer_dns 2>/dev/null | sed 's/\./[.]/g' || echo "N/A")
-          ECS_CLUSTER=$(terraform output -raw ecs_cluster_name 2>/dev/null || echo "N/A")
-          VPC_ID=$(terraform output -raw vpc_id 2>/dev/null || echo "N/A")
-          
-          echo "- **Kong Proxy**: \`http://$ALB_DNS\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Kong Admin API**: \`http://$ALB_DNS:8001\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Kong Manager**: \`http://$ALB_DNS:8002\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 Infrastructure Details" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Load Balancer DNS**: \`$ALB_DNS\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **ECS Cluster**: \`$ECS_CLUSTER\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **VPC ID**: \`$VPC_ID\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> **Note**: Os pontos nas URLs foram substituídos por [.] para evitar mascaramento. Copie e cole substituindo [.] por pontos." >> $GITHUB_STEP_SUMMARY
