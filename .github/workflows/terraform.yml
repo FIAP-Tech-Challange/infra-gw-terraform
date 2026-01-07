@@ -1,138 +1,160 @@
-name: 'Terraform CI/CD'
+name: '🚀 Terraform CI/CD'
 
 on:
   push:
     branches:
       - main
+      - develop
   pull_request:
     branches:
       - main
+      - develop
 
 env:
   TF_VERSION: '1.9.0'
-  AWS_REGION: ${{ secrets.AWS_REGION }}
+  TF_BUCKET_PREFIX: "terraform-state-fiap-kong-gw"
 
 jobs:
   terraform-validate:
-    name: 'Terraform Validate'
+    name: '🔍 Terraform Validate'
     runs-on: ubuntu-latest
+    outputs:
+      tf_bucket_name: ${{ steps.calc.outputs.BUCKET_NAME }}
     
     steps:
-      - name: Checkout
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
+      - name: 🔑 Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: 🆔 Calculate Bucket Name
+        id: calc
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          FULL_NAME="${{ env.TF_BUCKET_PREFIX }}-${ACCOUNT_ID}"
+          
+          echo "🎯 Bucket Name: $FULL_NAME"
+          
+          echo "TF_STATE_BUCKET_NAME=$FULL_NAME" >> $GITHUB_ENV
+          
+          echo "BUCKET_NAME=$FULL_NAME" >> $GITHUB_OUTPUT
+
+      - name: 🪣 Bootstrap S3 Backend
+        id: bootstrap
+        shell: bash
+        env:
+          BUCKET_NAME: ${{ env.TF_STATE_BUCKET_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+            echo "✅ Bucket '$BUCKET_NAME' already exists."
+          else
+            echo "⚠️ Bucket '$BUCKET_NAME' not found. Creating..."
+            
+            if [ "$AWS_REGION" == "us-east-1" ]; then
+              aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION"
+            else
+              aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" --create-bucket-configuration LocationConstraint="$AWS_REGION"
+            fi
+            aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --versioning-configuration Status=Enabled
+          fi
+
+      - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Terraform Format
-        id: fmt
-        run: terraform fmt -recursive
+      - name: 🎨 Terraform Fmt
+        run: terraform fmt -recursive -check
 
-      - name: Terraform Init
-        id: init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        run: terraform init
+      - name: 📦 Terraform Init
+        run: terraform init -backend-config="bucket=${{ env.TF_STATE_BUCKET_NAME }}"
 
-      - name: Terraform Validate
-        id: validate
+      - name: 🧪 Terraform Validate
         run: terraform validate -no-color
 
   terraform-plan:
-    name: 'Terraform Plan'
+    name: '📋 Terraform Plan'
     runs-on: ubuntu-latest
     needs: terraform-validate
-    if: always()
+    env:
+      TF_STATE_BUCKET_NAME: ${{ needs.terraform-validate.outputs.tf_bucket_name }}
     
     steps:
-      - name: Checkout
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
+      - name: 🔑 Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Configure AWS Credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          echo "AWS credentials configured"
+      - name: 📦 Terraform Init
+        run: terraform init -backend-config="bucket=${{ env.TF_STATE_BUCKET_NAME }}"
 
-      - name: Terraform Init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        run: terraform init
-
-      - name: Terraform Plan
-        id: plan
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        run: |
-          terraform plan -no-color -out=tfplan
-
-      - name: Upload Plan
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan
-          path: tfplan
-          retention-days: 5
+      - name: 📄 Terraform Plan
+        run: terraform plan -no-color
 
   terraform-apply:
-    name: 'Terraform Apply'
+    name: '🚀 Terraform Apply'
     runs-on: ubuntu-latest
-    needs: terraform-plan
+    needs: 
+      - terraform-plan
+      - terraform-validate
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
+    env:
+      TF_STATE_BUCKET_NAME: ${{ needs.terraform-validate.outputs.tf_bucket_name }}
     
     steps:
-      - name: Checkout
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
+      - name: 🔑 Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Configure AWS Credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          echo "AWS credentials configured"
+      - name: 📦 Terraform Init
+        run: terraform init -backend-config="bucket=${{ env.TF_STATE_BUCKET_NAME }}"
 
-      - name: Terraform Init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        run: terraform init
-
-      - name: Terraform Apply
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      - name: 🚀 Terraform Apply
         run: terraform apply -auto-approve
 
-      - name: Terraform Output
-        id: output
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        run: terraform output -json
+      - name: 📊 Show URLs
+        run: |
+          MANAGER_URL=$(terraform output -raw kong_manager_url 2>/dev/null || echo "N/A")
+          PROXY_URL=$(terraform output -raw kong_proxy_url 2>/dev/null || echo "N/A")
+          ALB_DNS=$(terraform output -raw load_balancer_dns 2>/dev/null || echo "N/A")
+          
+          echo "## 🦍 Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "| Serviço | Link |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Kong Manager** | $MANAGER_URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| **API Proxy** | $PROXY_URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Load Balancer** | $ALB_DNS |" >> $GITHUB_STEP_SUMMARY
+          
+          echo "::notice title=✅ Success::Manager: $MANAGER_URL"
