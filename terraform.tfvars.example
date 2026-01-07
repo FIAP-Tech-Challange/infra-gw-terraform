@@ -1,0 +1,24 @@
+# Exemplo de valores para terraform.tfvars
+# Copie este arquivo para terraform.tfvars e ajuste os valores conforme necessário
+
+# Configurações básicas
+aws_region   = "us-east-1"
+environment  = "dev"
+project_name = "kong-gateway"
+
+# Configurações do Kong
+kong_image        = "kong:latest"
+kong_cpu          = 512
+kong_memory       = 1024
+kong_desired_count = 1
+
+# Segurança de rede - ajuste conforme necessário
+# Para desenvolvimento: ["0.0.0.0/0"]
+# Para produção: ["seu.ip.publico/32", "ip.da.empresa/24"]
+allowed_cidr_blocks = ["0.0.0.0/0"]
+
+# Configurações do RDS PostgreSQL
+db_instance_class         = "db.t3.micro"  # Free tier eligible
+db_allocated_storage      = 20             # GB
+db_max_allocated_storage  = 100            # GB (auto-scaling)
+db_backup_retention_days  = 7              # dias
