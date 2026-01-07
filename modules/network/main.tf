@@ -8,7 +8,7 @@ data "aws_subnets" "default" {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
-  
+
   filter {
     name   = "default-for-az"
     values = ["true"]
@@ -26,7 +26,7 @@ data "aws_security_group" "default" {
     name   = "group-name"
     values = ["default"]
   }
-  
+
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
@@ -62,7 +62,7 @@ resource "aws_security_group" "kong" {
     from_port   = 8001
     to_port     = 8001
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Em produção, restringir a IPs específicos
+    cidr_blocks = ["0.0.0.0/0"] # Em produção, restringir a IPs específicos
     description = "Kong Admin API"
   }
 
@@ -71,7 +71,7 @@ resource "aws_security_group" "kong" {
     from_port   = 8002
     to_port     = 8002
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Interface web para gerenciamento
+    cidr_blocks = ["0.0.0.0/0"] # Interface web para gerenciamento
     description = "Kong Manager OSS UI"
   }
 
@@ -189,11 +189,11 @@ resource "aws_security_group_rule" "default_from_kong_custom_ports" {
 }
 
 resource "aws_security_group_rule" "default_ssh" {
-  type            = "ingress"
-  from_port       = 22
-  to_port         = 22
-  protocol        = "tcp"
-  cidr_blocks     = ["0.0.0.0/0"]
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = data.aws_security_group.default.id
-  description     = "SSH access"
+  description       = "SSH access"
 }

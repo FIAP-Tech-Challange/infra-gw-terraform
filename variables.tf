@@ -19,7 +19,7 @@ variable "project_name" {
 variable "kong_image" {
   description = "Imagem Docker do Kong"
   type        = string
-  default     = "kong:3.10.0.4"  # Kong Gateway 3.10.0.4 com Manager OSS bundled
+  default     = "kong:3.10.0.4" # Kong Gateway 3.10.0.4 com Manager OSS bundled
 }
 
 variable "kong_cpu" {
@@ -43,14 +43,14 @@ variable "kong_desired_count" {
 variable "allowed_cidr_blocks" {
   description = "CIDR blocks permitidos para acesso ao Kong"
   type        = list(string)
-  default     = ["0.0.0.0/0"]  # Internet access - ajuste conforme necessário
+  default     = ["0.0.0.0/0"] # Internet access - ajuste conforme necessário
 }
 
 # RDS Variables
 variable "db_instance_class" {
   description = "Classe da instância RDS"
   type        = string
-  default     = "db.t3.micro"  # Free tier eligible
+  default     = "db.t3.micro" # Free tier eligible
 }
 
 variable "db_allocated_storage" {
