@@ -39,7 +39,6 @@ infra-gw-terraform/
 ├── terraform.tfvars.example   # 📋 Exemplo de configuração
 └── README.md
 
-```
 infra-gw-terraform/
 │   │   └── outputs.tf
 │   ├── alb/                   # ⚖️ Application Load Balancer
