@@ -144,7 +144,24 @@ jobs:
       - name: 🚀 Terraform Apply
         run: terraform apply -auto-approve
 
-      - name: 📊 Show URLs
+      - name: � Save Kong Admin URL to Parameter Store
+        run: |
+          ADMIN_URL=$(terraform output -raw kong_admin_url 2>/dev/null || echo "")
+          if [ -n "$ADMIN_URL" ] && [ "$ADMIN_URL" != "N/A" ]; then
+            aws ssm put-parameter \
+              --name "/kong/admin-url" \
+              --value "$ADMIN_URL" \
+              --type "String" \
+              --overwrite \
+              --description "Kong Gateway Admin API URL" \
+              --region ${{ vars.AWS_REGION }}
+            echo "✅ Kong Admin URL saved to Parameter Store: /kong/admin-url"
+          else
+            echo "⚠️ Kong Admin URL not found in outputs"
+            exit 1
+          fi
+
+      - name: �📊 Show URLs
         run: |
           MANAGER_URL=$(terraform output -raw kong_manager_url 2>/dev/null || echo "N/A")
           PROXY_URL=$(terraform output -raw kong_proxy_url 2>/dev/null || echo "N/A")
