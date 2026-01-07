@@ -40,6 +40,7 @@ infra-gw-terraform/
 └── README.md
 
 ```
+infra-gw-terraform/
 │   │   └── outputs.tf
 │   ├── alb/                   # ⚖️ Application Load Balancer
 │   │   ├── main.tf
