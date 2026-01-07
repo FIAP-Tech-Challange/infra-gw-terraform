@@ -139,9 +139,20 @@ jobs:
 
       - name: Create Deployment Summary
         run: |
-          echo "## Terraform Deployment Successful! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Terraform Deployment Successful!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Outputs" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          echo '${{ steps.output.outputs.stdout }}' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Kong Gateway URLs" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          PROXY_URL=$(terraform output -raw kong_proxy_url)
+          ADMIN_URL=$(terraform output -raw kong_admin_url)
+          MANAGER_URL=$(terraform output -raw kong_manager_url)
+          ALB_DNS=$(terraform output -raw load_balancer_dns)
+          echo "- **Kong Proxy**: http://${ALB_DNS}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Kong Admin API**: http://${ALB_DNS}:8001" >> $GITHUB_STEP_SUMMARY
+          echo "- **Kong Manager**: http://${ALB_DNS}:8002" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Infrastructure Details" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Load Balancer DNS**: ${ALB_DNS}" >> $GITHUB_STEP_SUMMARY
+          echo "- **ECS Cluster**: $(terraform output -raw ecs_cluster_name)" >> $GITHUB_STEP_SUMMARY
+          echo "- **VPC ID**: $(terraform output -raw vpc_id)" >> $GITHUB_STEP_SUMMARY
