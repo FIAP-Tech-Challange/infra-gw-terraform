@@ -197,3 +197,14 @@ resource "aws_security_group_rule" "default_ssh" {
   security_group_id = data.aws_security_group.default.id
   description       = "SSH access"
 }
+
+# Egress rule para permitir acesso à internet (pull de imagens, APIs, etc)
+resource "aws_security_group_rule" "default_egress_all" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = data.aws_security_group.default.id
+  description       = "Allow all outbound traffic for Docker pulls, package installs, API calls, etc"
+}
