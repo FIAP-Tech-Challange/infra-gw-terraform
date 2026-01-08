@@ -70,3 +70,10 @@ variable "db_backup_retention_days" {
   type        = number
   default     = 7
 }
+
+# Secret Manager
+variable "jwtSecretName" {
+  description = "The name of the JWT secret in AWS Secrets Manager"
+  type        = string
+  default     = "jwt_secret"
+}
