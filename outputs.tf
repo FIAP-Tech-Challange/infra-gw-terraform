@@ -90,3 +90,14 @@ output "ecr_registry_id" {
   description = "ID do registry ECR"
   value       = module.ecr.registry_id
 }
+
+# Secret Manager outputs
+output "jwt_secret_arn" {
+  description = "ARN do JWT secret no Secrets Manager"
+  value       = module.secret_manager.jwt_secret_arn
+}
+
+output "jwt_secret_name" {
+  description = "Nome do JWT secret"
+  value       = module.secret_manager.jwt_secret_name
+}

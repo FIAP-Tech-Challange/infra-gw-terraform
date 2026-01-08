@@ -25,7 +25,11 @@ infra-gw-terraform/
 │   │   ├── main.tf
 │   │   ├── variables.tf
 │   │   └── outputs.tf
-│   ├── ecr/                   # 🐳 ECR Repository
+│   ├── ecr/                   # � ECR Repository
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── secret-manager/        # 🔐 Secrets Manager
 │   │   ├── main.tf
 │   │   ├── variables.tf
 │   │   └── outputs.tf
@@ -82,6 +86,19 @@ infra-gw-terraform/
   - Task Definitions (Kong + Migrations)
   - ECS Service
   - CloudWatch Log Groups
+
+### 6. **ECR Module** (`modules/ecr/`)
+- **Responsabilidade**: Container Registry
+- **Recursos**:
+  - ECR Repository para microservices-snack-bar
+  - Lifecycle policy (mantém últimas 10 imagens)
+  - Image scanning on push
+
+### 7. **Secret Manager Module** (`modules/secret-manager/`)
+- **Responsabilidade**: Gerenciamento de secrets
+- **Recursos**:
+  - JWT Secret para autenticação
+  - Random password generation (64 caracteres)
 
 ## 🚀 Como Usar
 
