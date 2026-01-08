@@ -174,7 +174,8 @@ jobs:
           echo "| **Kong Manager** | $MANAGER_URL |" >> $GITHUB_STEP_SUMMARY
           echo "| **API Proxy** | $PROXY_URL |" >> $GITHUB_STEP_SUMMARY
           echo "| **Load Balancer** | $ALB_DNS |" >> $GITHUB_STEP_SUMMARY
-          
+          echo "| **ECR Repository** | $ECR_REPOSITORY_URL |" >> $GITHUB_STEP_SUMMARY
+
           echo "::notice title=✅ Success::Manager: $MANAGER_URL"
           echo "::notice title=🌐 API Proxy::$PROXY_URL"
           echo "::notice title=⚖️ Load Balancer::$ALB_DNS"
