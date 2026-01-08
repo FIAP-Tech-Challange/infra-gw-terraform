@@ -166,7 +166,7 @@ jobs:
           MANAGER_URL=$(terraform output -raw kong_manager_url 2>/dev/null || echo "N/A")
           PROXY_URL=$(terraform output -raw kong_proxy_url 2>/dev/null || echo "N/A")
           ALB_DNS=$(terraform output -raw load_balancer_dns 2>/dev/null || echo "N/A")
-          ECR_REPOSITORY=$(terraform output -raw ecr_repository_url 2>/dev/null || echo "N/A")
+          ECR_REPOSITORY_URL=$(terraform output -raw ecr_repository_url 2>/dev/null || echo "N/A")
           
           echo "## 🦍 Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "| Serviço | Link |" >> $GITHUB_STEP_SUMMARY
