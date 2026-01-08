@@ -25,6 +25,10 @@ infra-gw-terraform/
 │   │   ├── main.tf
 │   │   ├── variables.tf
 │   │   └── outputs.tf
+│   ├── ecr/                   # 🐳 ECR Repository
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
 │   ├── alb/                   # ⚖️ Application Load Balancer
 │   │   ├── main.tf
 │   │   ├── variables.tf

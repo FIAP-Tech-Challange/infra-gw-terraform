@@ -97,3 +97,11 @@ module "ecs" {
   db_port                  = module.rds.db_instance_port
   db_name                  = module.rds.db_instance_name
 }
+
+# Módulo ECR - Container Registry
+module "ecr" {
+  source = "./modules/ecr"
+
+  repository_name = "microservices-snack-bar"
+  environment     = var.environment
+}

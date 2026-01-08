@@ -74,3 +74,19 @@ output "lab_role_arn" {
   description = "ARN da LabRole para AWS Academy"
   value       = module.iam.lab_role_arn
 }
+
+# ECR outputs
+output "ecr_repository_url" {
+  description = "URL do repositório ECR para microservices-snack-bar"
+  value       = module.ecr.repository_url
+}
+
+output "ecr_repository_name" {
+  description = "Nome do repositório ECR"
+  value       = module.ecr.repository_name
+}
+
+output "ecr_registry_id" {
+  description = "ID do registry ECR"
+  value       = module.ecr.registry_id
+}
