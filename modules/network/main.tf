@@ -85,13 +85,13 @@ resource "aws_security_group" "kong" {
   }
 
   # Egress - Kong precisa acessar backends e outros serviços
-  /*egress {
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
     description = "All outbound traffic"
-  }*/
+  }
 
   tags = {
     Name        = "${var.project_name}-kong-sg"
@@ -199,7 +199,7 @@ resource "aws_security_group_rule" "default_ssh" {
 }
 
 # Egress rule para permitir acesso à internet (pull de imagens, APIs, etc)
-resource "aws_security_group_rule" "default_egress_all" {
+/*resource "aws_security_group_rule" "default_egress_all" {
   type              = "egress"
   from_port         = 0
   to_port           = 0
@@ -207,4 +207,4 @@ resource "aws_security_group_rule" "default_egress_all" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = data.aws_security_group.default.id
   description       = "Allow all outbound traffic for Docker pulls, package installs, API calls, etc"
-}
+}*/
