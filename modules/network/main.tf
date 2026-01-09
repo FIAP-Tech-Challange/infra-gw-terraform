@@ -85,13 +85,13 @@ resource "aws_security_group" "kong" {
   }
 
   # Egress - Kong precisa acessar backends e outros serviços
-  egress {
+  /*egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
     description = "All outbound traffic"
-  }
+  }*/
 
   tags = {
     Name        = "${var.project_name}-kong-sg"
